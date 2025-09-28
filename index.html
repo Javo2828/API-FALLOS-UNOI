@@ -2,113 +2,190 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Registro de Problemas - Sistema Educacional</title>
+  <title>Reporte de Problemas - Sistema Educacional</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; background: #f9f9f9; }
-    h2 { color: #333; }
-    form { 
-      background: #fff; 
-      padding: 15px; 
-      border-radius: 8px; 
-      box-shadow: 0 0 5px rgba(0,0,0,0.1); 
-      margin-bottom: 20px;
-    }
-    label { display: block; margin: 8px 0 4px; }
-    select, textarea, input[type="text"] {
-      width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;
-    }
-    textarea { resize: vertical; }
-    .buttons { margin-top: 15px; }
-    button { 
-      margin-right: 10px; padding: 8px 15px; border: none; border-radius: 4px; 
-      cursor: pointer; 
-    }
-    button.guardar { background: #4CAF50; color: white; }
-    button.borrar { background: #f39c12; color: white; }
-    button.cancelar { background: #e74c3c; color: white; }
-    #mensaje { margin-top: 15px; font-weight: bold; color: green; }
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    label { display: block; margin-top: 10px; }
+    select, textarea, input { width: 100%; padding: 5px; margin-top: 5px; }
+    button { margin: 10px 5px; padding: 10px 15px; }
+    #consultaResultado { margin-top: 20px; font-weight: bold; }
   </style>
 </head>
 <body>
 
-  <h2>Reporte de Problemas/Fallas</h2>
+  <h1>Registro de Problemas o Fallas</h1>
+
   <form id="formReporte">
     <label>Nivel:</label>
-    <select id="nivel" required>
+    <select id="nivel" onchange="filtrarGrados()">
       <option value="">Seleccione...</option>
-      <option>Preescolar</option>
-      <option>Primaria</option>
-      <option>Secundaria</option>
-      <option>Preparatoria</option>
     </select>
 
     <label>Grado:</label>
-    <select id="grado" required>
+    <select id="grado" onchange="filtrarGrupos()">
       <option value="">Seleccione...</option>
-      <option>1</option><option>2</option><option>3</option>
-      <option>4</option><option>5</option><option>6</option>
     </select>
 
     <label>Grupo:</label>
-    <select id="grupo" required>
+    <select id="grupo" onchange="filtrarClases()">
       <option value="">Seleccione...</option>
-      <option>A</option><option>B</option><option>C</option>
     </select>
 
     <label>Clase:</label>
-    <select id="clase" required>
+    <select id="clase" onchange="mostrarDocenteMateria()">
       <option value="">Seleccione...</option>
-      <option>Matemáticas</option>
-      <option>Español</option>
-      <option>Ciencias</option>
-      <option>Historia</option>
-      <option>Inglés</option>
     </select>
+
+    <label>Materia:</label>
+    <input type="text" id="materia" readonly>
 
     <label>Docente:</label>
-    <select id="docente" required>
-      <option value="">Seleccione...</option>
-      <option>Profesor 1</option>
-      <option>Profesor 2</option>
-      <option>Profesor 3</option>
-    </select>
+    <input type="text" id="docente" readonly>
 
-    <label>Fecha del reporte:</label>
+    <label>Fecha:</label>
     <input type="text" id="fecha" readonly>
 
-    <label>Problema o Falla:</label>
-    <textarea id="descripcion" rows="4" placeholder="Describa el problema..." required></textarea>
+    <label>Descripción del problema:</label>
+    <textarea id="descripcion" rows="4"></textarea>
 
-    <div class="buttons">
-      <button type="button" class="guardar" onclick="guardarReporte()">Guardar</button>
-      <button type="reset" class="borrar">Borrar</button>
-      <button type="button" class="cancelar" onclick="cancelar()">Cancelar</button>
-    </div>
-    <div id="mensaje"></div>
+    <br>
+    <button type="button" onclick="guardarReporte()">Guardar</button>
+    <button type="reset">Borrar</button>
   </form>
 
+  <h2>Consultar Estatus de Ticket</h2>
+  <label>Número de Ticket:</label>
+  <input type="number" id="ticketConsulta">
+  <button type="button" onclick="consultarTicket()">Consultar</button>
+
+  <div id="consultaResultado"></div>
+
   <script>
-    // ⚠️ Pega aquí la URL de tu Google Apps Script
+    // 📌 URL de Google Apps Script
     const API_URL = "https://script.google.com/macros/s/AKfycbyDl1iaHWPLnuEp1-3d6QGHkPQOhieRj_UpOHcCDfSJvBvZ9VvPpMus71ZtqaG_-T2PIA/exec";
 
-    // Colocar la fecha actual en el campo
-    document.getElementById("fecha").value = new Date().toLocaleDateString();
+    // 📌 Catálogo 
+    const catalogo = [
+  { "nivel": "Preescolar", "grado": "Kinder 1", "grupo": "Grupo A", "clase": "MatPre1A", "materia": "Matemáticas", "docente": "Irene Saucedo Ventura" },
+  { "nivel": "Preescolar", "grado": "Kinder 1", "grupo": "Grupo A", "clase": "BilPre1A", "materia": "Bilingual Mission", "docente": "Martha Graciela Posadas Navarro" },
+  { "nivel": "Preescolar", "grado": "Kinder 1", "grupo": "Grupo B", "clase": "MatPre1B", "materia": "Matemáticas", "docente": "Reyna Rivera García" },
+  { "nivel": "Preescolar", "grado": "Kinder 1", "grupo": "Grupo B", "clase": "BilPre1B", "materia": "Bilingual Mission", "docente": "María Teresa Valdez López" },
+  { "nivel": "Preescolar", "grado": "Kinder 2", "grupo": "Grupo A", "clase": "MatPre2A", "materia": "Matemáticas", "docente": "Erika García Mejía" },
+  { "nivel": "Preescolar", "grado": "Kinder 2", "grupo": "Grupo A", "clase": "BilPre2A", "materia": "Bilingual Mission", "docente": "Claudia Patricia Moreno Ramírez" },
+  { "nivel": "Preescolar", "grado": "Kinder 2", "grupo": "Grupo B", "clase": "MatPre2B", "materia": "Matemáticas", "docente": "María Fernanda Aguirre Chávez" },
+  { "nivel": "Preescolar", "grado": "Kinder 2", "grupo": "Grupo B", "clase": "BilPre2B", "materia": "Bilingual Mission", "docente": "Alejandra Zárate López" },
+  { "nivel": "Preescolar", "grado": "Kinder 3", "grupo": "Grupo A", "clase": "MatPre3A", "materia": "Matemáticas", "docente": "Daniela Romero Ríos" },
+  { "nivel": "Preescolar", "grado": "Kinder 3", "grupo": "Grupo A", "clase": "BilPre3A", "materia": "Bilingual Mission", "docente": "Gabriela Jiménez Hernández" },
+  { "nivel": "Preescolar", "grado": "Kinder 3", "grupo": "Grupo B", "clase": "MatPre3B", "materia": "Matemáticas", "docente": "Karen Rodríguez Flores" },
+  { "nivel": "Preescolar", "grado": "Kinder 3", "grupo": "Grupo B", "clase": "BilPre3B", "materia": "Bilingual Mission", "docente": "Paola Méndez Gutiérrez" },
+
+  { "nivel": "Primaria", "grado": "1º- Primero Primaria", "grupo": "Grupo A", "clase": "MatPri1A", "materia": "Matemáticas", "docente": "Itzel Guadalupe Ávila Ruiz" },
+  { "nivel": "Primaria", "grado": "1º- Primero Primaria", "grupo": "Grupo B", "clase": "MatPri1B", "materia": "Matemáticas", "docente": "Roberto Hernández López" },
+  { "nivel": "Primaria", "grado": "2º- Segundo Primaria", "grupo": "Grupo A", "clase": "MatPri2A", "materia": "Matemáticas", "docente": "Daniela Sánchez Martínez" },
+  { "nivel": "Primaria", "grado": "2º- Segundo Primaria", "grupo": "Grupo B", "clase": "MatPri2B", "materia": "Matemáticas", "docente": "José Luis Morales Pérez" },
+  { "nivel": "Primaria", "grado": "3º- Tercero Primaria", "grupo": "Grupo A", "clase": "MatPri3A", "materia": "Matemáticas", "docente": "Verónica Castillo Ramírez" },
+  { "nivel": "Primaria", "grado": "3º- Tercero Primaria", "grupo": "Grupo B", "clase": "MatPri3B", "materia": "Matemáticas", "docente": "Francisco Javier Ortega Díaz" },
+  { "nivel": "Primaria", "grado": "4º- Cuarto Primaria", "grupo": "Grupo A", "clase": "MatPri4A", "materia": "Matemáticas", "docente": "María Fernanda Torres Aguilar" },
+  { "nivel": "Primaria", "grado": "4º- Cuarto Primaria", "grupo": "Grupo B", "clase": "MatPri4B", "materia": "Matemáticas", "docente": "Eduardo Sánchez Ramírez" },
+  { "nivel": "Primaria", "grado": "5º- Quinto Primaria", "grupo": "Grupo A", "clase": "MatPri5A", "materia": "Matemáticas", "docente": "Patricia Hernández Gómez" },
+  { "nivel": "Primaria", "grado": "5º- Quinto Primaria", "grupo": "Grupo B", "clase": "MatPri5B", "materia": "Matemáticas", "docente": "Rocío García Flores" },
+  { "nivel": "Primaria", "grado": "6º- Sexto Primaria", "grupo": "Grupo A", "clase": "MatPri6A", "materia": "Matemáticas", "docente": "Carlos Ramírez Ortega" },
+  { "nivel": "Primaria", "grado": "6º- Sexto Primaria", "grupo": "Grupo B", "clase": "MatPri6B", "materia": "Matemáticas", "docente": "Alejandra Ruiz Hernández" },
+
+  { "nivel": "Secundaria", "grado": "1º- Primero Secundaria", "grupo": "Grupo A", "clase": "MatSec1A", "materia": "Matemáticas", "docente": "Marco Eduardo Ramírez de la Cruz" },
+  { "nivel": "Secundaria", "grado": "1º- Primero Secundaria", "grupo": "Grupo B", "clase": "MatSec1B", "materia": "Matemáticas", "docente": "Sandra López Márquez" },
+  { "nivel": "Secundaria", "grado": "2º- Segundo Secundaria", "grupo": "Grupo A", "clase": "MatSec2A", "materia": "Matemáticas", "docente": "Jorge Hernández Castañeda" },
+  { "nivel": "Secundaria", "grado": "2º- Segundo Secundaria", "grupo": "Grupo B", "clase": "MatSec2B", "materia": "Matemáticas", "docente": "Mariana Pérez Gutiérrez" },
+  { "nivel": "Secundaria", "grado": "3º- Tercero Secundaria", "grupo": "Grupo A", "clase": "MatSec3A", "materia": "Matemáticas", "docente": "Héctor González Ramírez" },
+  { "nivel": "Secundaria", "grado": "3º- Tercero Secundaria", "grupo": "Grupo B", "clase": "MatSec3B", "materia": "Matemáticas", "docente": "Lucía Hernández Ortega" }
+];
+
+    // Llenar niveles únicos
+    const niveles = [...new Set(catalogo.map(c => c.nivel))];
+    const nivelSelect = document.getElementById("nivel");
+    niveles.forEach(n => {
+      const option = document.createElement("option");
+      option.value = n;
+      option.textContent = n;
+      nivelSelect.appendChild(option);
+    });
+
+    function filtrarGrados() {
+      const gradoSelect = document.getElementById("grado");
+      gradoSelect.innerHTML = "<option value=''>Seleccione...</option>";
+      const grupos = document.getElementById("grupo");
+      grupos.innerHTML = "<option value=''>Seleccione...</option>";
+      const clases = document.getElementById("clase");
+      clases.innerHTML = "<option value=''>Seleccione...</option>";
+
+      const seleccion = document.getElementById("nivel").value;
+      const grados = [...new Set(catalogo.filter(c => c.nivel === seleccion).map(c => c.grado))];
+      grados.forEach(g => {
+        const option = document.createElement("option");
+        option.value = g;
+        option.textContent = g;
+        gradoSelect.appendChild(option);
+      });
+    }
+
+    function filtrarGrupos() {
+      const grupoSelect = document.getElementById("grupo");
+      grupoSelect.innerHTML = "<option value=''>Seleccione...</option>";
+      const clases = document.getElementById("clase");
+      clases.innerHTML = "<option value=''>Seleccione...</option>";
+
+      const seleccionNivel = document.getElementById("nivel").value;
+      const seleccionGrado = document.getElementById("grado").value;
+      const grupos = [...new Set(catalogo.filter(c => c.nivel === seleccionNivel && c.grado === seleccionGrado).map(c => c.grupo))];
+      grupos.forEach(g => {
+        const option = document.createElement("option");
+        option.value = g;
+        option.textContent = g;
+        grupoSelect.appendChild(option);
+      });
+    }
+
+    function filtrarClases() {
+      const claseSelect = document.getElementById("clase");
+      claseSelect.innerHTML = "<option value=''>Seleccione...</option>";
+
+      const seleccionNivel = document.getElementById("nivel").value;
+      const seleccionGrado = document.getElementById("grado").value;
+      const seleccionGrupo = document.getElementById("grupo").value;
+      const clases = catalogo.filter(c => c.nivel === seleccionNivel && c.grado === seleccionGrado && c.grupo === seleccionGrupo);
+      clases.forEach(cl => {
+        const option = document.createElement("option");
+        option.value = cl.clase;
+        option.textContent = cl.clase;
+        claseSelect.appendChild(option);
+      });
+    }
+
+    function mostrarDocenteMateria() {
+      const seleccionClase = document.getElementById("clase").value;
+      const item = catalogo.find(c => c.clase === seleccionClase);
+      if (item) {
+        document.getElementById("materia").value = item.materia;
+        document.getElementById("docente").value = item.docente;
+      }
+    }
 
     function guardarReporte() {
       const nivel = document.getElementById("nivel").value;
       const grado = document.getElementById("grado").value;
       const grupo = document.getElementById("grupo").value;
       const clase = document.getElementById("clase").value;
+      const materia = document.getElementById("materia").value;
       const docente = document.getElementById("docente").value;
-      const fecha = document.getElementById("fecha").value;
       const descripcion = document.getElementById("descripcion").value;
+      const fecha = new Date().toLocaleDateString();
 
-      if (!nivel || !grado || !grupo || !clase || !docente || !descripcion) {
-        alert("Por favor complete todos los campos.");
+      if (!nivel || !grado || !grupo || !clase || !descripcion) {
+        alert("⚠️ Complete todos los campos.");
         return;
       }
 
-      const reporte = { nivel, grado, grupo, clase, docente, fecha, descripcion };
+      const reporte = { action: "guardar", nivel, grado, grupo, clase, materia, docente, fecha, descripcion };
 
       fetch(API_URL, {
         method: "POST",
@@ -117,27 +194,41 @@
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          document.getElementById("mensaje").innerText = 
-            "✅ Reporte subido correctamente. Su número de ticket es: " + data.ticket;
+          alert("✅ Reporte enviado correctamente. Ticket: " + data.ticket);
           document.getElementById("formReporte").reset();
-          document.getElementById("fecha").value = new Date().toLocaleDateString();
+          document.getElementById("fecha").value = fecha;
         } else {
-          alert("❌ Error al guardar el reporte.");
+          alert("❌ Error al guardar.");
         }
       })
-      .catch(err => {
-        console.error(err);
-        alert("⚠️ Error de conexión.");
-      });
+      .catch(() => alert("❌ Error de conexión."));
     }
 
-    function cancelar() {
-      if (confirm("¿Desea cancelar el registro actual?")) {
-        document.getElementById("formReporte").reset();
-        document.getElementById("mensaje").innerText = "";
-        document.getElementById("fecha").value = new Date().toLocaleDateString();
+    function consultarTicket() {
+      const ticket = document.getElementById("ticketConsulta").value;
+      if (!ticket) {
+        alert("Ingrese un número de ticket.");
+        return;
       }
+
+      fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "consultar", ticket: ticket })
+      })
+      .then(res => res.json())
+      .then(data => {
+        const div = document.getElementById("consultaResultado");
+        if (data.success) {
+          div.innerHTML = "📌 Estatus: " + data.estatus + "<br>📝 Comentarios: " + data.comentarios;
+        } else {
+          div.innerHTML = "❌ " + data.message;
+        }
+      })
+      .catch(() => alert("❌ Error de conexión."));
     }
+
+    // Setear fecha actual
+    document.getElementById("fecha").value = new Date().toLocaleDateString();
   </script>
 </body>
 </html>
