@@ -16,219 +16,848 @@
   <h1>Registro de Problemas o Fallas</h1>
 
   <form id="formReporte">
-    <label>Nivel:</label>
-    <select id="nivel" onchange="filtrarGrados()">
-      <option value="">Seleccione...</option>
-    </select>
+  <label>Docente:</label>
+  <select id="docente" required>
+    <option value="">Seleccione...</option>
+  </select>
 
-    <label>Grado:</label>
-    <select id="grado" onchange="filtrarGrupos()">
-      <option value="">Seleccione...</option>
-    </select>
+  <label>Clase:</label>
+  <select id="clase" required disabled>
+    <option value="">Seleccione...</option>
+  </select>
 
-    <label>Grupo:</label>
-    <select id="grupo" onchange="filtrarClases()">
-      <option value="">Seleccione...</option>
-    </select>
+  <label>Nivel:</label>
+  <input type="text" id="nivel" readonly>
 
-    <label>Clase:</label>
-    <select id="clase" onchange="mostrarDocenteMateria()">
-      <option value="">Seleccione...</option>
-    </select>
+  <label>Grado:</label>
+  <input type="text" id="grado" readonly>
 
-    <label>Materia:</label>
-    <input type="text" id="materia" readonly>
+  <label>Grupo:</label>
+  <input type="text" id="grupo" readonly>
 
-    <label>Docente:</label>
-    <input type="text" id="docente" readonly>
+  <label>Materia:</label>
+  <input type="text" id="materia" readonly>
 
-    <label>Fecha:</label>
-    <input type="text" id="fecha" readonly>
+  <label>Fecha del reporte:</label>
+  <input type="text" id="fecha" readonly>
 
-    <label>Descripción del problema:</label>
-    <textarea id="descripcion" rows="4"></textarea>
+  <label>Problema o Falla:</label>
+  <textarea id="descripcion" rows="4" placeholder="Describa el problema..." required></textarea>
 
-    <br>
-    <button type="button" onclick="guardarReporte()">Guardar</button>
-    <button type="reset">Borrar</button>
-  </form>
+  <div class="buttons">
+    <button type="button" class="guardar" onclick="guardarReporte()">Guardar</button>
+    <button type="reset" class="borrar">Borrar</button>
+    <button type="button" class="cancelar" onclick="cancelar()">Cancelar</button>
+  </div>
+  <div id="mensaje"></div>
+</form>
 
-  <h2>Consultar Estatus de Ticket</h2>
-  <label>Número de Ticket:</label>
-  <input type="number" id="ticketConsulta">
-  <button type="button" onclick="consultarTicket()">Consultar</button>
+<script>
+  // Catálogo completo (nivel, grado, grupo, clase, materia, docente)
+  const catalogo = 
+  [
+  {
+    "Nivel": "Preescolar",
+    "Grado": "Kinder 1",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "1° A Matemáticas Preescolar",
+    "Clase Clave": "MatPre1A",
+    "Alias": "Matemáticas 1A",
+    "Materia": "Matemáticas",
+    "Maestro": "Irene Saucedo Ventura"
+  },
+  {
+    "Nivel": "Preescolar",
+    "Grado": "Kinder 1",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "1° A Bilingual Mission Preescolar",
+    "Clase Clave": "BilPre1A",
+    "Alias": "Bilingual Mission 1A",
+    "Materia": "Bilingual Mission",
+    "Maestro": "Martha Graciela Posadas Navarro"
+  },
+  {
+    "Nivel": "Preescolar",
+    "Grado": "Kinder 1",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "1° A Zona D Preescolar",
+    "Clase Clave": "ZonPre1A",
+    "Alias": "Zona D 1A",
+    "Materia": "Zona D",
+    "Maestro": "Irene Saucedo Ventura"
+  },
+  {
+    "Nivel": "Preescolar",
+    "Grado": "Kinder 1",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "1° A Escritura Preescolar",
+    "Clase Clave": "EscPre1A",
+    "Alias": "Escritura 1A",
+    "Materia": "Escritura",
+    "Maestro": "Irene Saucedo Ventura"
+  },
+  {
+    "Nivel": "Preescolar",
+    "Grado": "Kinder 2",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "2° A Matemáticas Preescolar",
+    "Clase Clave": "MatPre2A",
+    "Alias": "Matemáticas 2A",
+    "Materia": "Matemáticas",
+    "Maestro": "Rita Fabiola González Rojas"
+  },
+  {
+    "Nivel": "Preescolar",
+    "Grado": "Kinder 2",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "2° A Bilingual Mission Preescolar",
+    "Clase Clave": "BilPre2A",
+    "Alias": "Bilingual Mission 2A",
+    "Materia": "Bilingual Mission",
+    "Maestro": "Karla Lilia Baños Castro"
+  },
+  {
+    "Nivel": "Preescolar",
+    "Grado": "Kinder 2",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "2° A Zona D Preescolar",
+    "Clase Clave": "ZonPre2A",
+    "Alias": "Zona D 2A",
+    "Materia": "Zona D",
+    "Maestro": "Rita Fabiola González Rojas"
+  },
+  {
+    "Nivel": "Preescolar",
+    "Grado": "Kinder 2",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "2° A Escritura Preescolar",
+    "Clase Clave": "EscPre2A",
+    "Alias": "Escritura 2A",
+    "Materia": "Escritura",
+    "Maestro": "Rita Fabiola González Rojas"
+  },
+  {
+    "Nivel": "Preescolar",
+    "Grado": "Kinder 3",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "3° A Matemáticas Preescolar",
+    "Clase Clave": "MatPre3A",
+    "Alias": "Matemáticas 3A",
+    "Materia": "Matemáticas",
+    "Maestro": "María Lizbeth Cardenas Reyes"
+  },
+  {
+    "Nivel": "Preescolar",
+    "Grado": "Kinder 3",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "3° A Bilingual Mission Preescolar",
+    "Clase Clave": "BilPre3A",
+    "Alias": "Bilingual Mission 3A",
+    "Materia": "Bilingual Mission",
+    "Maestro": "Karla Lilia Baños Castro"
+  },
+  {
+    "Nivel": "Preescolar",
+    "Grado": "Kinder 3",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "3° A Zona D Preescolar",
+    "Clase Clave": "ZonPre3A",
+    "Alias": "Zona D 3A",
+    "Materia": "Zona D",
+    "Maestro": "María Lizbeth Cardenas Reyes"
+  },
+  {
+    "Nivel": "Preescolar",
+    "Grado": "Kinder 3",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "3° A Escritura Preescolar",
+    "Clase Clave": "EscPre3A",
+    "Alias": "Escritura 3A",
+    "Materia": "Escritura",
+    "Maestro": "María Lizbeth Cardenas Reyes"
+  },
+  {
+    "Nivel": "Preescolar",
+    "Grado": "Kinder 1",
+    "Grupo": "Grupo B",
+    "Nombre de Clase": "1° B Matemáticas Preescolar",
+    "Clase Clave": "MatPre1B",
+    "Alias": "Matemáticas 1B",
+    "Materia": "Matemáticas",
+    "Maestro": "María Lizbeth Cardenas Reyes"
+  },
+  {
+    "Nivel": "Preescolar",
+    "Grado": "Kinder 2",
+    "Grupo": "Grupo B",
+    "Nombre de Clase": "2° B Matemáticas Preescolar",
+    "Clase Clave": "MatPre2B",
+    "Alias": "Matemáticas 2",
+    "Materia": "Matemáticas",
+    "Maestro": "Rita Fabiola González Rojas"
+  },
+  {
+    "Nivel": "Preescolar",
+    "Grado": "Kinder 1",
+    "Grupo": "Grupo B",
+    "Nombre de Clase": "1° B Bilingual Mission Preescolar",
+    "Clase Clave": "BilPre1B",
+    "Alias": "Bilingual Mission 1B",
+    "Materia": "Bilingual Mission",
+    "Maestro": "Irene Saucedo Ventura"
+  },
+  {
+    "Nivel": "Preescolar",
+    "Grado": "Kinder 2",
+    "Grupo": "Grupo B",
+    "Nombre de Clase": "2° B Bilingual Mission Preescolar",
+    "Clase Clave": "BilPre2B",
+    "Alias": "Bilingual Mission 2B",
+    "Materia": "Bilingual Mission",
+    "Maestro": "Irene Saucedo Ventura"
+  },
+  {
+    "Nivel": "Preescolar",
+    "Grado": "Kinder 1",
+    "Grupo": "Grupo B",
+    "Nombre de Clase": "1° B Zona D Preescolar",
+    "Clase Clave": "ZonPre1B",
+    "Alias": "Zona D 1B",
+    "Materia": "Zona D",
+    "Maestro": "María Lizbeth Cardenas Reyes"
+  },
+  {
+    "Nivel": "Preescolar",
+    "Grado": "Kinder 2",
+    "Grupo": "Grupo B",
+    "Nombre de Clase": "2° B Zona D Preescolar",
+    "Clase Clave": "ZonPre2B",
+    "Alias": "Zona D 2B",
+    "Materia": "Zona D",
+    "Maestro": "Rita Fabiola González Rojas"
+  },
+  {
+    "Nivel": "Preescolar",
+    "Grado": "Kinder 1",
+    "Grupo": "Grupo B",
+    "Nombre de Clase": "1° B Escritura Preescolar",
+    "Clase Clave": "EscPre1B",
+    "Alias": "Escritura 1B",
+    "Materia": "Escritura",
+    "Maestro": "María Lizbeth Cardenas Reyes"
+  },
+  {
+    "Nivel": "Preescolar",
+    "Grado": "Kinder 2",
+    "Grupo": "Grupo B",
+    "Nombre de Clase": "2° B Escritura Preescolar",
+    "Clase Clave": "EscPre2B",
+    "Alias": "Escritura 2B",
+    "Materia": "Escritura",
+    "Maestro": "Rita Fabiola González Rojas"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "1º- Primero Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "1° A Español Primaria",
+    "Clase Clave": "EspPri1A",
+    "Alias": "Español 1",
+    "Materia": "Lengua Materna. Español",
+    "Maestro": "Itzel Guadalupe Ávila Ruiz"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "1º- Primero Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "1° A Matemáticas Primaria",
+    "Clase Clave": "MatPri1A",
+    "Alias": "Matemáticas 1",
+    "Materia": "Matemáticas",
+    "Maestro": "Itzel Guadalupe Ávila Ruiz"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "1º- Primero Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "1° A Conocimiento del Medio Primaria",
+    "Clase Clave": "ConPri1A",
+    "Alias": "Conocimiento del Medio 1",
+    "Materia": "Conocimiento del Medio",
+    "Maestro": "Itzel Guadalupe Ávila Ruiz"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "1º- Primero Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "1° A Formación Cívica y Ética Primaria",
+    "Clase Clave": "ForPri1A",
+    "Alias": "Formación Cívica y Ética 1",
+    "Materia": "Formación Cívica y Ética",
+    "Maestro": "Itzel Guadalupe Ávila Ruiz"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "2º- Segundo Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "2° A Español Primaria",
+    "Clase Clave": "EspPri2A",
+    "Alias": "Español 2",
+    "Materia": "Lengua Materna. Español",
+    "Maestro": "Itzel Guadalupe Ávila Ruiz"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "2º- Segundo Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "2° A Matemáticas Primaria",
+    "Clase Clave": "MatPri2A",
+    "Alias": "Matemáticas 2",
+    "Materia": "Matemáticas",
+    "Maestro": "Itzel Guadalupe Ávila Ruiz"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "2º- Segundo Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "2° A Conocimiento del Medio Primaria",
+    "Clase Clave": "ConPri2A",
+    "Alias": "Conocimiento del Medio 2",
+    "Materia": "Conocimiento del Medio",
+    "Maestro": "Itzel Guadalupe Ávila Ruiz"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "2º- Segundo Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "2° A Formación Cívica y Ética Primaria",
+    "Clase Clave": "ForPri2A",
+    "Alias": "Formación Cívica y Ética 2",
+    "Materia": "Formación Cívica y Ética",
+    "Maestro": "Itzel Guadalupe Ávila Ruiz"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "3º- Tercero Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "3° A Español Primaria",
+    "Clase Clave": "EspPri3A",
+    "Alias": "Español 3",
+    "Materia": "Lengua Materna. Español",
+    "Maestro": "María Guadalupe Soto Sezati"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "3º- Tercero Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "3° A Matemáticas Primaria",
+    "Clase Clave": "MatPri3A",
+    "Alias": "Matemáticas 3",
+    "Materia": "Matemáticas",
+    "Maestro": "María Guadalupe Soto Sezati"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "3º- Tercero Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "3° A Conocimiento del Medio Primaria",
+    "Clase Clave": "ConPri3A",
+    "Alias": "Conocimiento del Medio 3",
+    "Materia": "Conocimiento del Medio",
+    "Maestro": "María Guadalupe Soto Sezati"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "3º- Tercero Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "3° A Formación Cívica y Ética Primaria",
+    "Clase Clave": "ForPri3A",
+    "Alias": "Formación Cívica y Ética 3",
+    "Materia": "Formación Cívica y Ética",
+    "Maestro": "María Guadalupe Soto Sezati"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "3º- Tercero Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "3° A Geografía Primaria",
+    "Clase Clave": "GeoPri3A",
+    "Alias": "Geografía 3",
+    "Materia": "Geografía",
+    "Maestro": "María Guadalupe Soto Sezati"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "4º- Cuarto Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "4° A Español Primaria",
+    "Clase Clave": "EspPri4A",
+    "Alias": "Español 4",
+    "Materia": "Lengua Materna. Español",
+    "Maestro": "María Guadalupe Soto Sezati"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "4º- Cuarto Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "4° A Matemáticas Primaria",
+    "Clase Clave": "MatPri4A",
+    "Alias": "Matemáticas 4",
+    "Materia": "Matemáticas",
+    "Maestro": "María Guadalupe Soto Sezati"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "4º- Cuarto Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "4° A Conocimiento del Medio Primaria",
+    "Clase Clave": "ConPri4A",
+    "Alias": "Conocimiento del Medio 4",
+    "Materia": "Conocimiento del Medio",
+    "Maestro": "María Guadalupe Soto Sezati"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "4º- Cuarto Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "4° A Formación Cívica y Ética Primaria",
+    "Clase Clave": "ForPri4A",
+    "Alias": "Formación Cívica y Ética 4",
+    "Materia": "Formación Cívica y Ética",
+    "Maestro": "María Guadalupe Soto Sezati"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "4º- Cuarto Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "4° A Geografía Primaria",
+    "Clase Clave": "GeoPri4A",
+    "Alias": "Geografía 4",
+    "Materia": "Geografía",
+    "Maestro": "María Guadalupe Soto Sezati"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "4º- Cuarto Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "4° A Historia Primaria",
+    "Clase Clave": "HisPri4A",
+    "Alias": "Historia 4",
+    "Materia": "Historia",
+    "Maestro": "María Guadalupe Soto Sezati"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "5º- Quinto Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "5° A Español Primaria",
+    "Clase Clave": "EspPri5A",
+    "Alias": "Español 5",
+    "Materia": "Lengua Materna. Español",
+    "Maestro": "Marco Eduardo Ramírez de la Cruz"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "5º- Quinto Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "5° A Matemáticas Primaria",
+    "Clase Clave": "MatPri5A",
+    "Alias": "Matemáticas 5",
+    "Materia": "Matemáticas",
+    "Maestro": "Marco Eduardo Ramírez de la Cruz"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "5º- Quinto Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "5° A Conocimiento del Medio Primaria",
+    "Clase Clave": "ConPri5A",
+    "Alias": "Conocimiento del Medio 5",
+    "Materia": "Conocimiento del Medio",
+    "Maestro": "Marco Eduardo Ramírez de la Cruz"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "5º- Quinto Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "5° A Formación Cívica y Ética Primaria",
+    "Clase Clave": "ForPri5A",
+    "Alias": "Formación Cívica y Ética 5",
+    "Materia": "Formación Cívica y Ética",
+    "Maestro": "Marco Eduardo Ramírez de la Cruz"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "5º- Quinto Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "5° A Geografía Primaria",
+    "Clase Clave": "GeoPri5A",
+    "Alias": "Geografía 5",
+    "Materia": "Geografía",
+    "Maestro": "Marco Eduardo Ramírez de la Cruz"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "5º- Quinto Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "5° A Historia Primaria",
+    "Clase Clave": "HisPri5A",
+    "Alias": "Historia 5",
+    "Materia": "Historia",
+    "Maestro": "Marco Eduardo Ramírez de la Cruz"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "6º- Sexto Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "6° A Español Primaria",
+    "Clase Clave": "EspPri6A",
+    "Alias": "Español 6",
+    "Materia": "Lengua Materna. Español",
+    "Maestro": "Marco Eduardo Ramírez de la Cruz"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "6º- Sexto Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "6° A Matemáticas Primaria",
+    "Clase Clave": "MatPri6A",
+    "Alias": "Matemáticas 6",
+    "Materia": "Matemáticas",
+    "Maestro": "Marco Eduardo Ramírez de la Cruz"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "6º- Sexto Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "6° A Conocimiento del Medio Primaria",
+    "Clase Clave": "ConPri6A",
+    "Alias": "Conocimiento del Medio 6",
+    "Materia": "Conocimiento del Medio",
+    "Maestro": "Marco Eduardo Ramírez de la Cruz"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "6º- Sexto Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "6° A Formación Cívica y Ética Primaria",
+    "Clase Clave": "ForPri6A",
+    "Alias": "Formación Cívica y Ética 6",
+    "Materia": "Formación Cívica y Ética",
+    "Maestro": "Marco Eduardo Ramírez de la Cruz"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "6º- Sexto Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "6° A Geografía Primaria",
+    "Clase Clave": "GeoPri6A",
+    "Alias": "Geografía 6",
+    "Materia": "Geografía",
+    "Maestro": "Marco Eduardo Ramírez de la Cruz"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "6º- Sexto Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "6° A Historia Primaria",
+    "Clase Clave": "HisPri6A",
+    "Alias": "Historia 6",
+    "Materia": "Historia",
+    "Maestro": "Marco Eduardo Ramírez de la Cruz"
+  },
+  {
+    "Nivel": "Secundaria",
+    "Grado": "1º- Primero Secundaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "1° A Matemáticas Secundaria",
+    "Clase Clave": "MatSec1A",
+    "Alias": "Matemáticas 1",
+    "Materia": "Matemáticas",
+    "Maestro": "Marco Eduardo Ramírez de la Cruz"
+  },
+  {
+    "Nivel": "Secundaria",
+    "Grado": "1º- Primero Secundaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "1° A Ciencias y tecnología. Biología Secundaria",
+    "Clase Clave": "CieSec1A",
+    "Alias": "Biología 1",
+    "Materia": "Ciencias y tecnología. Biología",
+    "Maestro": "Victor Hugo Vargas Velásquez"
+  },
+  {
+    "Nivel": "Secundaria",
+    "Grado": "1º- Primero Secundaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "1° A Formación Cívica y Ética Secundaria",
+    "Clase Clave": "ForSec1A",
+    "Alias": "Formación Cívica y Ética 1",
+    "Materia": "Formación Cívica y Ética",
+    "Maestro": "Victor Hugo Vargas Velásquez"
+  },
+  {
+    "Nivel": "Secundaria",
+    "Grado": "1º- Primero Secundaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "1° A Español Secundaria",
+    "Clase Clave": "EspSec1A",
+    "Alias": "Español 1",
+    "Materia": "Lengua Materna. Español",
+    "Maestro": "Arturo Medina Hernández"
+  },
+  {
+    "Nivel": "Secundaria",
+    "Grado": "1º- Primero Secundaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "1° A Historia Secundaria",
+    "Clase Clave": "HisSec1A",
+    "Alias": "Historia 1",
+    "Materia": "Historia 1",
+    "Maestro": "Arturo Medina Hernández"
+  },
+  {
+    "Nivel": "Secundaria",
+    "Grado": "1º- Primero Secundaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "1° A Geografía Secundaria",
+    "Clase Clave": "GeoSec1A",
+    "Alias": "Geografía",
+    "Materia": "Geografía",
+    "Maestro": "Arturo Medina Hernández"
+  },
+  {
+    "Nivel": "Secundaria",
+    "Grado": "2º- Segundo Secundaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "2° A Matemáticas Secundaria",
+    "Clase Clave": "MatSec2A",
+    "Alias": "Matemáticas 2",
+    "Materia": "Matemáticas",
+    "Maestro": "Marco Eduardo Ramírez de la Cruz"
+  },
+  {
+    "Nivel": "Secundaria",
+    "Grado": "2º- Segundo Secundaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "2° A Formación Cívica y Ética Secundaria",
+    "Clase Clave": "ForSec2A",
+    "Alias": "Formación Cívica y Ética 2",
+    "Materia": "Formación Cívica y Ética",
+    "Maestro": "Victor Hugo Vargas Velásquez"
+  },
+  {
+    "Nivel": "Secundaria",
+    "Grado": "2º- Segundo Secundaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "2° A Español Secundaria",
+    "Clase Clave": "EspSec2A",
+    "Alias": "Español 2",
+    "Materia": "Lengua Materna. Español",
+    "Maestro": "Arturo Medina Hernández"
+  },
+  {
+    "Nivel": "Secundaria",
+    "Grado": "2º- Segundo Secundaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "2° A Historia Secundaria",
+    "Clase Clave": "HisSec2A",
+    "Alias": "Historia 2",
+    "Materia": "Historia 2",
+    "Maestro": "Arturo Medina Hernández"
+  },
+  {
+    "Nivel": "Secundaria",
+    "Grado": "2º- Segundo Secundaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "2° A Ciencias y tecnología. Física Secundaria",
+    "Clase Clave": "CieSec2A",
+    "Alias": "Físisca 2",
+    "Materia": "Ciencias y tecnología. Física",
+    "Maestro": "Francisco Javier De Luna Fernández"
+  },
+  {
+    "Nivel": "Secundaria",
+    "Grado": "3º- Tercero Secundaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "3° A Matemáticas Secundaria",
+    "Clase Clave": "MatSec3A",
+    "Alias": "Matemáticas 3",
+    "Materia": "Matemáticas",
+    "Maestro": "Marco Eduardo Ramírez de la Cruz"
+  },
+  {
+    "Nivel": "Secundaria",
+    "Grado": "3º- Tercero Secundaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "3° A Formación Cívica y Ética Secundaria",
+    "Clase Clave": "ForSec3A",
+    "Alias": "Formación Cívica y Ética 3",
+    "Materia": "Formación Cívica y Ética",
+    "Maestro": "Victor Hugo Vargas Velásquez"
+  },
+  {
+    "Nivel": "Secundaria",
+    "Grado": "3º- Tercero Secundaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "3° A Español Secundaria",
+    "Clase Clave": "EspSec3A",
+    "Alias": "Español 3",
+    "Materia": "Lengua Materna. Español",
+    "Maestro": "Arturo Medina Hernández"
+  },
+  {
+    "Nivel": "Secundaria",
+    "Grado": "3º- Tercero Secundaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "3° A Historia Secundaria",
+    "Clase Clave": "HisSec3A",
+    "Alias": "Historia 3",
+    "Materia": "Historia 3",
+    "Maestro": "Arturo Medina Hernández"
+  },
+  {
+    "Nivel": "Secundaria",
+    "Grado": "3º- Tercero Secundaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "3° A Ciencias y tecnología. Química Secundaria",
+    "Clase Clave": "CieSec3A",
+    "Alias": "Química 3",
+    "Materia": "Ciencias y tecnología. Química",
+    "Maestro": "Francisco Javier De Luna Fernández"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "1º- Primero Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "1° A Inglés Primaria",
+    "Clase Clave": "IngPri1A",
+    "Alias": "Inglés 1",
+    "Materia": "Inglés",
+    "Maestro": "Bethoel Teresita Perez Ramirez"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "2º- Segundo Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "2° A Inglés Primaria",
+    "Clase Clave": "IngPri2A",
+    "Alias": "Inglés 2",
+    "Materia": "Inglés",
+    "Maestro": "Bethoel Teresita Perez Ramirez"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "3º- Tercero Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "3° A Inglés Primaria",
+    "Clase Clave": "IngPri3A",
+    "Alias": "Inglés 3",
+    "Materia": "Inglés",
+    "Maestro": "Ana Beatriz Cruz Unda"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "4º- Cuarto Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "4° A Inglés Primaria",
+    "Clase Clave": "IngPri4A",
+    "Alias": "Inglés 4",
+    "Materia": "Inglés",
+    "Maestro": "Ana Beatriz Cruz Unda"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "5º- Quinto Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "5° A Inglés Primaria",
+    "Clase Clave": "IngPri5A",
+    "Alias": "Inglés 5",
+    "Materia": "Inglés",
+    "Maestro": "Beatriz Enriqueta Romero González"
+  },
+  {
+    "Nivel": "Primaria",
+    "Grado": "6º- Sexto Primaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "6° A Inglés Primaria",
+    "Clase Clave": "IngPri6A",
+    "Alias": "Inglés 6",
+    "Materia": "Inglés",
+    "Maestro": "Beatriz Enriqueta Romero González"
+  },
+  {
+    "Nivel": "Secundaria",
+    "Grado": "1º- Primero Secundaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "1° A Inglés Avanzado Secundaria",
+    "Clase Clave": "IngSecA",
+    "Alias": "Inglés Avanzado",
+    "Materia": "Inglés Avanzado",
+    "Maestro": "Victor Hugo Vargas Velásquez"
+  },
+  {
+    "Nivel": "Secundaria",
+    "Grado": "1º- Primero Secundaria",
+    "Grupo": "Grupo A",
+    "Nombre de Clase": "1° A Inglés Intermedio Secundaria",
+    "Clase Clave": "IngSecB",
+    "Alias": "Inglés Intermedio",
+    "Materia": "Inglés Intermedio",
+    "Maestro": "Victor Hugo Vargas Velásquez"
+  }
+]
+    ;
 
-  <div id="consultaResultado"></div>
+  // Cargar lista única de docentes
+  const docenteSelect = document.getElementById("docente");
+  const claseSelect = document.getElementById("clase");
 
-  <script>
-    // 📌 URL de Google Apps Script
-    const API_URL = "https://script.google.com/macros/s/AKfycbyDl1iaHWPLnuEp1-3d6QGHkPQOhieRj_UpOHcCDfSJvBvZ9VvPpMus71ZtqaG_-T2PIA/exec";
+  const docentesUnicos = [...new Set(catalogo.map(item => item.docente))];
+  docentesUnicos.forEach(d => {
+    const opt = document.createElement("option");
+    opt.value = d;
+    opt.textContent = d;
+    docenteSelect.appendChild(opt);
+  });
 
-    // 📌 Catálogo 
-    const catalogo = [
-  { "nivel": "Preescolar", "grado": "Kinder 1", "grupo": "Grupo A", "clase": "MatPre1A", "materia": "Matemáticas", "docente": "Irene Saucedo Ventura" },
-  { "nivel": "Preescolar", "grado": "Kinder 1", "grupo": "Grupo A", "clase": "BilPre1A", "materia": "Bilingual Mission", "docente": "Martha Graciela Posadas Navarro" },
-  { "nivel": "Preescolar", "grado": "Kinder 1", "grupo": "Grupo B", "clase": "MatPre1B", "materia": "Matemáticas", "docente": "Reyna Rivera García" },
-  { "nivel": "Preescolar", "grado": "Kinder 1", "grupo": "Grupo B", "clase": "BilPre1B", "materia": "Bilingual Mission", "docente": "María Teresa Valdez López" },
-  { "nivel": "Preescolar", "grado": "Kinder 2", "grupo": "Grupo A", "clase": "MatPre2A", "materia": "Matemáticas", "docente": "Erika García Mejía" },
-  { "nivel": "Preescolar", "grado": "Kinder 2", "grupo": "Grupo A", "clase": "BilPre2A", "materia": "Bilingual Mission", "docente": "Claudia Patricia Moreno Ramírez" },
-  { "nivel": "Preescolar", "grado": "Kinder 2", "grupo": "Grupo B", "clase": "MatPre2B", "materia": "Matemáticas", "docente": "María Fernanda Aguirre Chávez" },
-  { "nivel": "Preescolar", "grado": "Kinder 2", "grupo": "Grupo B", "clase": "BilPre2B", "materia": "Bilingual Mission", "docente": "Alejandra Zárate López" },
-  { "nivel": "Preescolar", "grado": "Kinder 3", "grupo": "Grupo A", "clase": "MatPre3A", "materia": "Matemáticas", "docente": "Daniela Romero Ríos" },
-  { "nivel": "Preescolar", "grado": "Kinder 3", "grupo": "Grupo A", "clase": "BilPre3A", "materia": "Bilingual Mission", "docente": "Gabriela Jiménez Hernández" },
-  { "nivel": "Preescolar", "grado": "Kinder 3", "grupo": "Grupo B", "clase": "MatPre3B", "materia": "Matemáticas", "docente": "Karen Rodríguez Flores" },
-  { "nivel": "Preescolar", "grado": "Kinder 3", "grupo": "Grupo B", "clase": "BilPre3B", "materia": "Bilingual Mission", "docente": "Paola Méndez Gutiérrez" },
+  // Cuando seleccionan docente → llenar clases disponibles
+  docenteSelect.addEventListener("change", () => {
+    claseSelect.innerHTML = '<option value="">Seleccione...</option>';
+    claseSelect.disabled = true;
 
-  { "nivel": "Primaria", "grado": "1º- Primero Primaria", "grupo": "Grupo A", "clase": "MatPri1A", "materia": "Matemáticas", "docente": "Itzel Guadalupe Ávila Ruiz" },
-  { "nivel": "Primaria", "grado": "1º- Primero Primaria", "grupo": "Grupo B", "clase": "MatPri1B", "materia": "Matemáticas", "docente": "Roberto Hernández López" },
-  { "nivel": "Primaria", "grado": "2º- Segundo Primaria", "grupo": "Grupo A", "clase": "MatPri2A", "materia": "Matemáticas", "docente": "Daniela Sánchez Martínez" },
-  { "nivel": "Primaria", "grado": "2º- Segundo Primaria", "grupo": "Grupo B", "clase": "MatPri2B", "materia": "Matemáticas", "docente": "José Luis Morales Pérez" },
-  { "nivel": "Primaria", "grado": "3º- Tercero Primaria", "grupo": "Grupo A", "clase": "MatPri3A", "materia": "Matemáticas", "docente": "Verónica Castillo Ramírez" },
-  { "nivel": "Primaria", "grado": "3º- Tercero Primaria", "grupo": "Grupo B", "clase": "MatPri3B", "materia": "Matemáticas", "docente": "Francisco Javier Ortega Díaz" },
-  { "nivel": "Primaria", "grado": "4º- Cuarto Primaria", "grupo": "Grupo A", "clase": "MatPri4A", "materia": "Matemáticas", "docente": "María Fernanda Torres Aguilar" },
-  { "nivel": "Primaria", "grado": "4º- Cuarto Primaria", "grupo": "Grupo B", "clase": "MatPri4B", "materia": "Matemáticas", "docente": "Eduardo Sánchez Ramírez" },
-  { "nivel": "Primaria", "grado": "5º- Quinto Primaria", "grupo": "Grupo A", "clase": "MatPri5A", "materia": "Matemáticas", "docente": "Patricia Hernández Gómez" },
-  { "nivel": "Primaria", "grado": "5º- Quinto Primaria", "grupo": "Grupo B", "clase": "MatPri5B", "materia": "Matemáticas", "docente": "Rocío García Flores" },
-  { "nivel": "Primaria", "grado": "6º- Sexto Primaria", "grupo": "Grupo A", "clase": "MatPri6A", "materia": "Matemáticas", "docente": "Carlos Ramírez Ortega" },
-  { "nivel": "Primaria", "grado": "6º- Sexto Primaria", "grupo": "Grupo B", "clase": "MatPri6B", "materia": "Matemáticas", "docente": "Alejandra Ruiz Hernández" },
+    const docenteSeleccionado = docenteSelect.value;
+    if (!docenteSeleccionado) return;
 
-  { "nivel": "Secundaria", "grado": "1º- Primero Secundaria", "grupo": "Grupo A", "clase": "MatSec1A", "materia": "Matemáticas", "docente": "Marco Eduardo Ramírez de la Cruz" },
-  { "nivel": "Secundaria", "grado": "1º- Primero Secundaria", "grupo": "Grupo B", "clase": "MatSec1B", "materia": "Matemáticas", "docente": "Sandra López Márquez" },
-  { "nivel": "Secundaria", "grado": "2º- Segundo Secundaria", "grupo": "Grupo A", "clase": "MatSec2A", "materia": "Matemáticas", "docente": "Jorge Hernández Castañeda" },
-  { "nivel": "Secundaria", "grado": "2º- Segundo Secundaria", "grupo": "Grupo B", "clase": "MatSec2B", "materia": "Matemáticas", "docente": "Mariana Pérez Gutiérrez" },
-  { "nivel": "Secundaria", "grado": "3º- Tercero Secundaria", "grupo": "Grupo A", "clase": "MatSec3A", "materia": "Matemáticas", "docente": "Héctor González Ramírez" },
-  { "nivel": "Secundaria", "grado": "3º- Tercero Secundaria", "grupo": "Grupo B", "clase": "MatSec3B", "materia": "Matemáticas", "docente": "Lucía Hernández Ortega" }
-];
+    const clasesDocente = catalogo.filter(item => item.docente === docenteSeleccionado);
 
-    // Llenar niveles únicos
-    const niveles = [...new Set(catalogo.map(c => c.nivel))];
-    const nivelSelect = document.getElementById("nivel");
-    niveles.forEach(n => {
-      const option = document.createElement("option");
-      option.value = n;
-      option.textContent = n;
-      nivelSelect.appendChild(option);
+    clasesDocente.forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c.clase;
+      opt.textContent = c.clase;
+      claseSelect.appendChild(opt);
     });
 
-    function filtrarGrados() {
-      const gradoSelect = document.getElementById("grado");
-      gradoSelect.innerHTML = "<option value=''>Seleccione...</option>";
-      const grupos = document.getElementById("grupo");
-      grupos.innerHTML = "<option value=''>Seleccione...</option>";
-      const clases = document.getElementById("clase");
-      clases.innerHTML = "<option value=''>Seleccione...</option>";
+    claseSelect.disabled = false;
+  });
 
-      const seleccion = document.getElementById("nivel").value;
-      const grados = [...new Set(catalogo.filter(c => c.nivel === seleccion).map(c => c.grado))];
-      grados.forEach(g => {
-        const option = document.createElement("option");
-        option.value = g;
-        option.textContent = g;
-        gradoSelect.appendChild(option);
-      });
+  // Cuando seleccionan clase → rellenar datos relacionados
+  claseSelect.addEventListener("change", () => {
+    const docente = docenteSelect.value;
+    const clase = claseSelect.value;
+    const datos = catalogo.find(item => item.docente === docente && item.clase === clase);
+
+    if (datos) {
+      document.getElementById("nivel").value = datos.nivel;
+      document.getElementById("grado").value = datos.grado;
+      document.getElementById("grupo").value = datos.grupo;
+      document.getElementById("materia").value = datos.materia;
     }
+  });
 
-    function filtrarGrupos() {
-      const grupoSelect = document.getElementById("grupo");
-      grupoSelect.innerHTML = "<option value=''>Seleccione...</option>";
-      const clases = document.getElementById("clase");
-      clases.innerHTML = "<option value=''>Seleccione...</option>";
-
-      const seleccionNivel = document.getElementById("nivel").value;
-      const seleccionGrado = document.getElementById("grado").value;
-      const grupos = [...new Set(catalogo.filter(c => c.nivel === seleccionNivel && c.grado === seleccionGrado).map(c => c.grupo))];
-      grupos.forEach(g => {
-        const option = document.createElement("option");
-        option.value = g;
-        option.textContent = g;
-        grupoSelect.appendChild(option);
-      });
-    }
-
-    function filtrarClases() {
-      const claseSelect = document.getElementById("clase");
-      claseSelect.innerHTML = "<option value=''>Seleccione...</option>";
-
-      const seleccionNivel = document.getElementById("nivel").value;
-      const seleccionGrado = document.getElementById("grado").value;
-      const seleccionGrupo = document.getElementById("grupo").value;
-      const clases = catalogo.filter(c => c.nivel === seleccionNivel && c.grado === seleccionGrado && c.grupo === seleccionGrupo);
-      clases.forEach(cl => {
-        const option = document.createElement("option");
-        option.value = cl.clase;
-        option.textContent = cl.clase;
-        claseSelect.appendChild(option);
-      });
-    }
-
-    function mostrarDocenteMateria() {
-      const seleccionClase = document.getElementById("clase").value;
-      const item = catalogo.find(c => c.clase === seleccionClase);
-      if (item) {
-        document.getElementById("materia").value = item.materia;
-        document.getElementById("docente").value = item.docente;
-      }
-    }
-
-    function guardarReporte() {
-      const nivel = document.getElementById("nivel").value;
-      const grado = document.getElementById("grado").value;
-      const grupo = document.getElementById("grupo").value;
-      const clase = document.getElementById("clase").value;
-      const materia = document.getElementById("materia").value;
-      const docente = document.getElementById("docente").value;
-      const descripcion = document.getElementById("descripcion").value;
-      const fecha = new Date().toLocaleDateString();
-
-      if (!nivel || !grado || !grupo || !clase || !descripcion) {
-        alert("⚠️ Complete todos los campos.");
-        return;
-      }
-
-      const reporte = { action: "guardar", nivel, grado, grupo, clase, materia, docente, fecha, descripcion };
-
-      fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify(reporte)
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          alert("✅ Reporte enviado correctamente. Ticket: " + data.ticket);
-          document.getElementById("formReporte").reset();
-          document.getElementById("fecha").value = fecha;
-        } else {
-          alert("❌ Error al guardar.");
-        }
-      })
-      .catch(() => alert("❌ Error de conexión."));
-    }
-
-    function consultarTicket() {
-      const ticket = document.getElementById("ticketConsulta").value;
-      if (!ticket) {
-        alert("Ingrese un número de ticket.");
-        return;
-      }
-
-      fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify({ action: "consultar", ticket: ticket })
-      })
-      .then(res => res.json())
-      .then(data => {
-        const div = document.getElementById("consultaResultado");
-        if (data.success) {
-          div.innerHTML = "📌 Estatus: " + data.estatus + "<br>📝 Comentarios: " + data.comentarios;
-        } else {
-          div.innerHTML = "❌ " + data.message;
-        }
-      })
-      .catch(() => alert("❌ Error de conexión."));
-    }
-
-    // Setear fecha actual
-    document.getElementById("fecha").value = new Date().toLocaleDateString();
-  </script>
+  // Colocar fecha actual
+  document.getElementById("fecha").value = new Date().toLocaleDateString();
+</script>
 </body>
 </html>
+
