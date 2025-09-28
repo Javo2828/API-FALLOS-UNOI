@@ -1,213 +1,43 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Registro y Consulta de Errores - UNOi - CIMA</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    /* ------------------------------------- */
-    /* ESTILOS BASE Y VARIABLES */
-    /* ------------------------------------- */
-    :root {
-      --color-primary: #4CAF50; /* Guardar (Verde) */
-      --color-warning: #f39c12; /* Borrar (Naranja) */
-      --color-danger: #e74c3c; /* Cancelar (Rojo) */
-      --color-text: #333;
-      --color-bg: #f9f9f9;
-      --color-card: #fff;
-      --color-accent: #3498db; /* Azul para Consulta */
-    }
-    
-    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: var(--color-bg); }
-    h2 { color: var(--color-text); margin-top: 0; }
-    
-    /* Contenedor principal para responsive */
-    .container {
-      max-width: 700px;
-      margin: 0 auto;
-    }
+<form id="formReporte">
+  <label>Docente:</label>
+  <select id="docente" required>
+    <option value="">Seleccione...</option>
+  </select>
 
-    /* Estilo de los formularios */
-    .form-box { 
-      background: var(--color-card); 
-      padding: 15px; 
-      border-radius: 8px; 
-      box-shadow: 0 0 10px rgba(0,0,0,0.1); 
-      margin-bottom: 25px;
-    }
-    
-    label { display: block; margin: 8px 0 4px; font-weight: bold; }
-    select, textarea, input[type="text"], input[type="number"] {
-      width: 100%; 
-      padding: 10px; 
-      border: 1px solid #ccc; 
-      border-radius: 4px;
-      box-sizing: border-box; /* Crucial para responsive */
-    }
-    textarea { resize: vertical; }
-    input[readonly] { background-color: #eee; cursor: not-allowed; }
-    select:disabled { background-color: #f0f0f0; } /* Estilo para select deshabilitado */
+  <label>Clase:</label>
+  <select id="clase" required disabled>
+    <option value="">Seleccione...</option>
+  </select>
 
-    /* Estilos de botones */
-    .buttons { margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px; }
-    button { 
-      flex-grow: 1; 
-      padding: 10px 15px; 
-      border: none; 
-      border-radius: 4px; 
-      cursor: pointer; 
-      transition: background 0.3s;
-      color: white;
-      font-weight: bold;
-      min-width: 100px;
-    }
-    
-    button.guardar { background: var(--color-primary); }
-    button.borrar { background: var(--color-warning); }
-    button.cancelar { background: var(--color-danger); }
-    button.consultar { background: var(--color-accent); }
-    button:disabled { background-color: #ccc !important; cursor: wait; }
+  <label>Nivel:</label>
+  <input type="text" id="nivel" readonly>
 
-    /* ------------------------------------- */
-    /* SECCIÓN DE CONSULTA ESPECÍFICA */
-    /* ------------------------------------- */
-    #consultaResultado {
-      margin-top: 15px;
-      padding: 10px;
-      border-left: 5px solid var(--color-accent);
-      background-color: #ecf0f1;
-      border-radius: 4px;
-    }
-    #consultaResultado p { margin: 5px 0; }
-    #consultaResultado strong { color: var(--color-accent); }
-    .status-pendiente { color: var(--color-danger); }
-    .status-resuelto { color: var(--color-primary); }
-    .status-enproceso { color: var(--color-warning); }
+  <label>Grado:</label>
+  <input type="text" id="grado" readonly>
 
-    /* ------------------------------------- */
-    /* MODAL DE NOTIFICACIÓN */
-    /* ------------------------------------- */
-    .modal-backdrop {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      display: none; 
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
+  <label>Grupo:</label>
+  <input type="text" id="grupo" readonly>
 
-    .modal-content {
-      background: var(--color-card);
-      padding: 25px;
-      border-radius: 8px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-      width: 90%;
-      max-width: 400px;
-      text-align: center;
-      animation: fadeIn 0.3s;
-    }
+  <label>Materia:</label>
+  <input type="text" id="materia" readonly>
 
-    .modal-icon { font-size: 40px; margin-bottom: 10px; }
-    .modal-ok-button { 
-      background: var(--color-accent); 
-      margin-top: 15px; 
-      width: 100%;
-    }
+  <label>Fecha del reporte:</label>
+  <input type="text" id="fecha" readonly>
 
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    /* ------------------------------------- */
-    /* RESPONSIVE DESIGN (MEJORAS PARA MÓVIL) */
-    /* ------------------------------------- */
-    @media (min-width: 600px) {
-      .buttons button {
-        flex-grow: 0;
-        width: auto;
-      }
-    }
-  </style>
-</head>
-<body>
+  <label>Problema o Falla:</label>
+  <textarea id="descripcion" rows="4" placeholder="Describa el problema..." required></textarea>
 
-  <div class="container">
-    
-    <div class="form-box">
-      <h2>Reporte de Problemas/Fallas</h2>
-      <form id="formReporte">
-        
-        <label>Docente:</label>
-        <select id="docente" required>
-          <option value="">Seleccione...</option>
-        </select>
-
-        <label>Clase:</label>
-        <select id="clase" required disabled>
-          <option value="">Seleccione...</option>
-        </select>
-
-        <label>Nivel:</label>
-        <input type="text" id="nivel" readonly>
-
-        <label>Grado:</label>
-        <input type="text" id="grado" readonly>
-
-        <label>Grupo:</label>
-        <input type="text" id="grupo" readonly>
-
-        <label>Materia:</label>
-        <input type="text" id="materia" readonly>
-
-        <label>Fecha del reporte:</label>
-        <input type="text" id="fecha" readonly>
-
-        <label>Problema o Falla:</label>
-        <textarea id="descripcion" rows="4" placeholder="Describa el problema..." required></textarea>
-
-        <div class="buttons">
-          <button type="submit" class="guardar">Guardar Reporte</button>
-          <button type="button" class="borrar" onclick="limpiarFormulario()">Borrar Campos</button>
-          <button type="button" class="cancelar" onclick="cancelar()">Cancelar</button>
-        </div>
-      </form>
-    </div>
-
-    <div class="form-box">
-      <h2>Consulta de Estado del Ticket</h2>
-      <form id="formConsulta">
-        <label>Número de Ticket:</label>
-        <input type="number" id="ticketConsulta" placeholder="Escriba el número de ticket" required min="1">
-        
-        <div class="buttons">
-          <button type="submit" class="consultar">Consultar Estado</button>
-        </div>
-        
-        <div id="consultaResultado">
-          <p>Estatus:</p>
-          <p>Comentarios:</p>
-        </div>
-      </form>
-    </div>
-
-  </div> <div id="notificacionModal" class="modal-backdrop" onclick="this.style.display='none'">
-    <div class="modal-content" onclick="event.stopPropagation()">
-      <div id="modalIcon" class="modal-icon"></div>
-      <h3 id="modalTitle"></h3>
-      <p id="modalMessage"></p>
-      <button class="modal-ok-button" onclick="document.getElementById('notificacionModal').style.display='none'">Aceptar</button>
-    </div>
+  <div class="buttons">
+    <button type="button" class="guardar" onclick="guardarReporte()">Guardar</button>
+    <button type="reset" class="borrar">Borrar</button>
+    <button type="button" class="cancelar" onclick="cancelar()">Cancelar</button>
   </div>
+  <div id="mensaje"></div>
+</form>
 
-
-  <script>
-    // URL de tu Google Apps Script
-    const API_URL = "https://script.google.com/macros/s/AKfycbyDl1iaHWPLnuEp1-3d6QGHkPQOhieRj_UpOHcCDfSJvBvZ9VvPpMus71ZtqaG_-T2PIA/exec";
-
-    // ⚠️ Catálogo de Datos (tu array completo)
-    const catalogo =  [
+<script>
+  // Catálogo completo (nivel, grado, grupo, clase, materia, docente)
+  const catalogo =  [
   {
     "nivel": "Preescolar",
     "grado": "Kinder 1",
@@ -960,251 +790,52 @@
   }
 ];
 
-    // Referencias a elementos del DOM
-    const formReporte = document.getElementById("formReporte");
-    const formConsulta = document.getElementById("formConsulta");
-    const docenteSelect = document.getElementById("docente");
-    const claseSelect = document.getElementById("clase");
-    const resultadoDiv = document.getElementById("consultaResultado");
-    const modal = document.getElementById("notificacionModal");
-    const modalTitle = document.getElementById("modalTitle");
-    const modalIcon = document.getElementById("modalIcon");
-    const modalMessage = document.getElementById("modalMessage");
-    const nivelInput = document.getElementById("nivel");
-    const gradoInput = document.getElementById("grado");
-    const grupoInput = document.getElementById("grupo");
-    const materiaInput = document.getElementById("materia");
+  // Cargar lista única de docentes
+  const docenteSelect = document.getElementById("docente");
+  const claseSelect = document.getElementById("clase");
 
-    // Función para mostrar la ventana emergente
-    function mostrarModal(tipo, titulo, mensaje) {
-      modalTitle.textContent = titulo;
-      modalMessage.textContent = mensaje;
-      modalIcon.innerHTML = '';
-      
-      if (tipo === 'success') {
-        modalIcon.innerHTML = '✅';
-        modalIcon.style.color = 'var(--color-primary)';
-      } else if (tipo === 'error') {
-        modalIcon.innerHTML = '❌';
-        modalIcon.style.color = 'var(--color-danger)';
-      } else if (tipo === 'info') {
-        modalIcon.innerHTML = '🔍';
-        modalIcon.style.color = 'var(--color-accent)';
-      }
-      
-      modal.style.display = 'flex';
-    }
+  const docentesUnicos = [...new Set(catalogo.map(item => item.docente))];
+  docentesUnicos.forEach(d => {
+    const opt = document.createElement("option");
+    opt.value = d;
+    opt.textContent = d;
+    docenteSelect.appendChild(opt);
+  });
 
-    // Llenar la lista de DOCENTES al inicio
-    function llenarListaDocentes() {
-      const docentesUnicos = [...new Set(catalogo.map(item => item.docente))].sort();
-      
-      docentesUnicos.forEach(d => {
-        const opt = document.createElement("option");
-        opt.value = d;
-        opt.textContent = d;
-        docenteSelect.appendChild(opt);
-      });
-    }
+  // Cuando seleccionan docente → llenar clases disponibles
+  docenteSelect.addEventListener("change", () => {
+    claseSelect.innerHTML = '<option value="">Seleccione...</option>';
+    claseSelect.disabled = true;
 
-    // Limpiar todos los campos del formulario de reporte
-    function limpiarFormulario() {
-      formReporte.reset();
-      
-      // Limpiar campos de solo lectura
-      nivelInput.value = "";
-      gradoInput.value = "";
-      grupoInput.value = "";
-      materiaInput.value = "";
-      
-      // Limpiar y deshabilitar select de clase
-      claseSelect.innerHTML = '<option value="">Seleccione...</option>';
-      claseSelect.disabled = true;
-      
-      // Volver a colocar la fecha actual
-      document.getElementById("fecha").value = new Date().toLocaleDateString('es-MX');
-      
-      docenteSelect.selectedIndex = 0;
-    }
-    
-    // ----------------------------------------------------
-    // Lógica principal de selección: Docente -> Clase
-    // ----------------------------------------------------
-    docenteSelect.addEventListener("change", () => {
-        claseSelect.innerHTML = '<option value="">Seleccione...</option>';
-        claseSelect.disabled = true;
-        
-        // Limpiar campos dependientes
-        nivelInput.value = "";
-        gradoInput.value = "";
-        grupoInput.value = "";
-        materiaInput.value = "";
+    const docenteSeleccionado = docenteSelect.value;
+    if (!docenteSeleccionado) return;
 
-        const docenteSeleccionado = docenteSelect.value;
-        if (!docenteSeleccionado) return;
+    const clasesDocente = catalogo.filter(item => item.docente === docenteSeleccionado);
 
-        // Filtrar clases por el docente seleccionado
-        const clasesDocente = catalogo.filter(item => item.docente === docenteSeleccionado);
-
-        clasesDocente.forEach(c => {
-          const opt = document.createElement("option");
-          opt.value = c.clase;
-          opt.textContent = c.clase;
-          claseSelect.appendChild(opt);
-        });
-
-        claseSelect.disabled = false;
+    clasesDocente.forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c.clase;
+      opt.textContent = c.clase;
+      claseSelect.appendChild(opt);
     });
 
+    claseSelect.disabled = false;
+  });
 
-    // Auto-rellenar campos al seleccionar clase
-    claseSelect.addEventListener("change", () => {
-      const docente = docenteSelect.value;
-      const clase = claseSelect.value;
-      
-      // Busca la combinación exacta de Docente y Clase
-      const datos = catalogo.find(item => item.docente === docente && item.clase === clase);
+  // Cuando seleccionan clase → rellenar datos relacionados
+  claseSelect.addEventListener("change", () => {
+    const docente = docenteSelect.value;
+    const clase = claseSelect.value;
+    const datos = catalogo.find(item => item.docente === docente && item.clase === clase);
 
-      if (datos) {
-        nivelInput.value = datos.nivel;
-        gradoInput.value = datos.grado;
-        grupoInput.value = datos.grupo;
-        materiaInput.value = datos.materia;
-      } else {
-        // Limpiar campos si se selecciona 'Seleccione...' o no hay match
-        nivelInput.value = "";
-        gradoInput.value = "";
-        grupoInput.value = "";
-        materiaInput.value = "";
-      }
-    });
-
-    // -------------------------------------
-    // FUNCIONALIDAD DE GUARDAR REPORTE
-    // -------------------------------------
-    formReporte.addEventListener('submit', function(event) {
-        event.preventDefault(); 
-        guardarReporte();
-    });
-
-    async function guardarReporte() {
-      const btnGuardar = formReporte.querySelector('.guardar');
-      btnGuardar.disabled = true;
-      mostrarModal('info', 'Enviando...', 'Por favor, espere mientras se procesa su reporte.');
-
-      const reporte = {
-        action: "guardar", 
-        docente: docenteSelect.value,
-        clase: claseSelect.value,
-        nivel: nivelInput.value,
-        grado: gradoInput.value,
-        grupo: grupoInput.value,
-        materia: materiaInput.value,
-        fecha: document.getElementById("fecha").value,
-        descripcion: document.getElementById("descripcion").value,
-      };
-
-      try {
-        const res = await fetch(API_URL, {
-          method: "POST",
-          body: JSON.stringify(reporte)
-        });
-
-        const data = await res.json(); 
-
-        if (data.success) {
-          mostrarModal('success', '¡Reporte Guardado!', `Su reporte ha sido subido correctamente. Su número de ticket es: ${data.ticket}`);
-          limpiarFormulario(); 
-        } else {
-          mostrarModal('error', 'Error al Guardar', "Hubo un problema al guardar el reporte: " + (data.message || "Error desconocido."));
-        }
-
-      } catch (err) {
-        console.error("Error de red/petición:", err);
-        mostrarModal('error', 'Error de Conexión', "No se pudo conectar al servidor. Revise su conexión.");
-      } finally {
-        btnGuardar.disabled = false;
-      }
+    if (datos) {
+      document.getElementById("nivel").value = datos.nivel;
+      document.getElementById("grado").value = datos.grado;
+      document.getElementById("grupo").value = datos.grupo;
+      document.getElementById("materia").value = datos.materia;
     }
+  });
 
-    function cancelar() {
-      if (confirm("¿Desea cancelar el registro actual? Se borrarán todos los datos.")) {
-        limpiarFormulario();
-      }
-    }
-    
-    // -------------------------------------
-    // FUNCIONALIDAD DE CONSULTAR TICKET
-    // -------------------------------------
-    formConsulta.addEventListener('submit', function(event) {
-        event.preventDefault();
-        consultarTicket();
-    });
-    
-    function updateResultado(estatus, comentarios) {
-        resultadoDiv.className = 'consultaResultado';
-        let statusClass = '';
-        let statusText = estatus;
-
-        if (estatus && estatus.toLowerCase().includes('pendiente')) {
-            statusClass = 'status-pendiente';
-        } else if (estatus && estatus.toLowerCase().includes('resuelto')) {
-            statusClass = 'status-resuelto';
-        } else if (estatus && estatus.toLowerCase().includes('proceso')) {
-            statusClass = 'status-enproceso';
-        }
-
-        resultadoDiv.innerHTML = `
-            <p>Estatus: <strong class="${statusClass}">${statusText || 'N/A'}</strong></p>
-            <p>Comentarios: <span>${comentarios || "Aún no hay comentarios."}</span></p>
-        `;
-    }
-
-    async function consultarTicket() {
-      const ticket = document.getElementById("ticketConsulta").value;
-      const btnConsultar = formConsulta.querySelector('.consultar');
-      btnConsultar.disabled = true;
-      
-      updateResultado('Buscando...', ''); // Mensaje de búsqueda
-
-      const dataConsulta = {
-        action: "consultar", 
-        ticket: ticket
-      };
-      
-      try {
-        const res = await fetch(API_URL, {
-          method: "POST",
-          body: JSON.stringify(dataConsulta)
-        });
-        
-        const data = await res.json();
-        
-        if (data.success) {
-            updateResultado(data.estatus, data.comentarios);
-            mostrarModal('info', 'Consulta Exitosa', `Estatus del Ticket ${ticket}: ${data.estatus}`);
-        } else {
-            resultadoDiv.innerHTML = '<p style="color:var(--color-danger);">❌ Ticket no encontrado.</p>';
-            mostrarModal('error', 'Error de Consulta', data.message || `El ticket ${ticket} no fue encontrado o el número es incorrecto.`);
-        }
-
-      } catch (err) {
-        console.error("Error de red/petición:", err);
-        resultadoDiv.innerHTML = '<p style="color:var(--color-danger);">⚠️ Error de conexión.</p>';
-        mostrarModal('error', 'Error de Conexión', "No se pudo conectar al servidor.");
-      } finally {
-        btnConsultar.disabled = false;
-      }
-    }
-
-
-    // Inicialización al cargar la página
-    document.addEventListener("DOMContentLoaded", () => {
-        llenarListaDocentes();
-        limpiarFormulario(); // Inicializar campos de solo lectura, fecha y deshabilitar Clase
-        // Inicializar el div de resultado de consulta
-        resultadoDiv.innerHTML = '<p>Estatus:</p><p>Comentarios:</p>';
-    });
-  </script>
-</body>
-</html>
+  // Colocar fecha actual
+  document.getElementById("fecha").value = new Date().toLocaleDateString();
+</script>
