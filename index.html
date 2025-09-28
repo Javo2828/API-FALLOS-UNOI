@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de Problemas - Sistema Educacional</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f9f9f9; }
+    h2 { color: #333; }
+    form { 
+      background: #fff; 
+      padding: 15px; 
+      border-radius: 8px; 
+      box-shadow: 0 0 5px rgba(0,0,0,0.1); 
+      margin-bottom: 20px;
+    }
+    label { display: block; margin: 8px 0 4px; }
+    select, textarea, input[type="text"] {
+      width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;
+    }
+    textarea { resize: vertical; }
+    .buttons { margin-top: 15px; }
+    button { 
+      margin-right: 10px; padding: 8px 15px; border: none; border-radius: 4px; 
+      cursor: pointer; 
+    }
+    button.guardar { background: #4CAF50; color: white; }
+    button.borrar { background: #f39c12; color: white; }
+    button.cancelar { background: #e74c3c; color: white; }
+    #mensaje { margin-top: 15px; font-weight: bold; color: green; }
+  </style>
+</head>
+<body>
+
+  <h2>Reporte de Problemas/Fallas</h2>
+  <form id="formReporte">
+    <label>Nivel:</label>
+    <select id="nivel" required>
+      <option value="">Seleccione...</option>
+      <option>Preescolar</option>
+      <option>Primaria</option>
+      <option>Secundaria</option>
+      <option>Preparatoria</option>
+    </select>
+
+    <label>Grado:</label>
+    <select id="grado" required>
+      <option value="">Seleccione...</option>
+      <option>1</option><option>2</option><option>3</option>
+      <option>4</option><option>5</option><option>6</option>
+    </select>
+
+    <label>Grupo:</label>
+    <select id="grupo" required>
+      <option value="">Seleccione...</option>
+      <option>A</option><option>B</option><option>C</option>
+    </select>
+
+    <label>Clase:</label>
+    <select id="clase" required>
+      <option value="">Seleccione...</option>
+      <option>Matemáticas</option>
+      <option>Español</option>
+      <option>Ciencias</option>
+      <option>Historia</option>
+      <option>Inglés</option>
+    </select>
+
+    <label>Docente:</label>
+    <select id="docente" required>
+      <option value="">Seleccione...</option>
+      <option>Profesor 1</option>
+      <option>Profesor 2</option>
+      <option>Profesor 3</option>
+    </select>
+
+    <label>Fecha del reporte:</label>
+    <input type="text" id="fecha" readonly>
+
+    <label>Problema o Falla:</label>
+    <textarea id="descripcion" rows="4" placeholder="Describa el problema..." required></textarea>
+
+    <div class="buttons">
+      <button type="button" class="guardar" onclick="guardarReporte()">Guardar</button>
+      <button type="reset" class="borrar">Borrar</button>
+      <button type="button" class="cancelar" onclick="cancelar()">Cancelar</button>
+    </div>
+    <div id="mensaje"></div>
+  </form>
+
+  <script>
+    // ⚠️ Pega aquí la URL de tu Google Apps Script
+    const API_URL = "https://script.google.com/macros/s/AKfycbyDl1iaHWPLnuEp1-3d6QGHkPQOhieRj_UpOHcCDfSJvBvZ9VvPpMus71ZtqaG_-T2PIA/exec";
+
+    // Colocar la fecha actual en el campo
+    document.getElementById("fecha").value = new Date().toLocaleDateString();
+
+    function guardarReporte() {
+      const nivel = document.getElementById("nivel").value;
+      const grado = document.getElementById("grado").value;
+      const grupo = document.getElementById("grupo").value;
+      const clase = document.getElementById("clase").value;
+      const docente = document.getElementById("docente").value;
+      const fecha = document.getElementById("fecha").value;
+      const descripcion = document.getElementById("descripcion").value;
+
+      if (!nivel || !grado || !grupo || !clase || !docente || !descripcion) {
+        alert("Por favor complete todos los campos.");
+        return;
+      }
+
+      const reporte = { nivel, grado, grupo, clase, docente, fecha, descripcion };
+
+      fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify(reporte)
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById("mensaje").innerText = 
+            "✅ Reporte subido correctamente. Su número de ticket es: " + data.ticket;
+          document.getElementById("formReporte").reset();
+          document.getElementById("fecha").value = new Date().toLocaleDateString();
+        } else {
+          alert("❌ Error al guardar el reporte.");
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert("⚠️ Error de conexión.");
+      });
+    }
+
+    function cancelar() {
+      if (confirm("¿Desea cancelar el registro actual?")) {
+        document.getElementById("formReporte").reset();
+        document.getElementById("mensaje").innerText = "";
+        document.getElementById("fecha").value = new Date().toLocaleDateString();
+      }
+    }
+  </script>
+</body>
+</html>
